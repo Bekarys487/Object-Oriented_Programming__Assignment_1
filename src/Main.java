@@ -30,10 +30,10 @@ public class Main {
                 case 10 -> viewAllCustomers();
                 case 11 -> demonstrateCustomerPolymorphism();
                 case 0 -> {
-                    System.out.println("👋 Thank you for using Beka Clothing Store! Goodbye!");
+                    System.out.println("Thank you for using Beka Clothing Store! Goodbye!");
                     running = false;
                 }
-                default -> System.out.println("❌ Invalid choice. Please try again.");
+                default -> System.out.println("Invalid choice. Please try again.");
             }
 
             if (running) {
@@ -57,7 +57,7 @@ public class Main {
 
     private static void displayMenu() {
         System.out.println("\n========================================");
-        System.out.println("   🏪 BEKA CLOTHING STORE - WEEK 4");
+        System.out.println("   BEKA CLOTHING STORE - WEEK 4");
         System.out.println("========================================");
         System.out.println("1. Add General Item");
         System.out.println("2. Add Shirt");
@@ -82,7 +82,7 @@ public class Main {
         double price = getDoubleInput("Enter price: ");
         scanner.nextLine();
         allItems.add(new ClothingItem(nextItemId++, name, size, price));
-        System.out.println("✅ Item added!");
+        System.out.println("Item added!");
     }
 
     private static void addShirt() {
@@ -95,7 +95,7 @@ public class Main {
         System.out.print("Sleeve type (Short/Long/Sleeveless): ");
         String sleeve = scanner.nextLine();
         allItems.add(new Shirt(nextItemId++, name, size, price, sleeve));
-        System.out.println("✅ Shirt added!");
+        System.out.println("Shirt added!");
     }
 
     private static void addPants() {
@@ -108,7 +108,7 @@ public class Main {
         System.out.print("Fit type (Slim/Regular/Relaxed): ");
         String fit = scanner.nextLine();
         allItems.add(new Pants(nextItemId++, name, size, price, fit));
-        System.out.println("✅ Pants added!");
+        System.out.println("Pants added!");
     }
 
     private static void addJacket() {
@@ -124,7 +124,7 @@ public class Main {
         boolean wp = scanner.nextBoolean();
         scanner.nextLine();
         allItems.add(new Jacket(nextItemId++, name, size, price, material, wp));
-        System.out.println("✅ Jacket added!");
+        System.out.println("Jacket added!");
     }
 
     private static void viewAllItems() {
@@ -144,21 +144,21 @@ public class Main {
             if (item instanceof Jacket) {
                 Jacket j = (Jacket) item;
                 if (j.isWinterJacket()) {
-                    System.out.println("   ❄️ Winter Jacket!");
+                    System.out.println("   Winter Jacket!");
                 }
             } else if (item instanceof Shirt) {
                 Shirt s = (Shirt) item;
                 if (s.isCasual()) {
-                    System.out.println("   👕 Casual!");
+                    System.out.println("   Casual!");
                 }
             } else if (item instanceof Pants) {
                 Pants p = (Pants) item;
                 if (p.isFormal()) {
-                    System.out.println("   👔 Formal!");
+                    System.out.println("   Formal!");
                 }
             }
             if (item.isPremium()) {
-                System.out.println("   ⭐ Premium!");
+                System.out.println("   Premium!");
             }
             System.out.println();
         }
@@ -177,8 +177,8 @@ public class Main {
             System.out.print(item.getName() + ": ");
             item.careInstructions();
         }
-        System.out.println("\n✨ Same methods, different outputs!");
-        System.out.println("📌 This is POLYMORPHISM!");
+        System.out.println("\nSame methods, different outputs!");
+        System.out.println("This is POLYMORPHISM!");
     }
 
     private static void viewItemsByCategory() {
@@ -219,7 +219,7 @@ public class Main {
         int purchases = getIntInput("Total purchases: ");
         scanner.nextLine();
         allCustomers.add(new RegularCustomer(nextCustomerId++, name, size, 0, purchases));
-        System.out.println("✅ Customer registered!");
+        System.out.println("Customer registered!");
     }
 
     private static void addVIPCustomer() {
@@ -228,7 +228,7 @@ public class Main {
         System.out.print("Membership Level (Gold/Platinum/Diamond): ");
         String level = scanner.nextLine();
         allCustomers.add(new VIPCustomer(nextCustomerId++, name, "M", 500, level, true));
-        System.out.println("✅ VIP Customer registered!");
+        System.out.println("VIP Customer registered!");
     }
 
     private static void viewAllCustomers() {
@@ -248,12 +248,12 @@ public class Main {
             if (c instanceof VIPCustomer) {
                 VIPCustomer vip = (VIPCustomer) c;
                 if (vip.isDiamondMember()) {
-                    System.out.println("   💎 Diamond VIP!");
+                    System.out.println("   Diamond VIP!");
                 }
             } else if (c instanceof RegularCustomer) {
                 RegularCustomer reg = (RegularCustomer) c;
                 if (reg.isFrequentShopper()) {
-                    System.out.println("   🛍️ Frequent Shopper!");
+                    System.out.println("    Frequent Shopper!");
                 }
             }
             System.out.println();
@@ -272,14 +272,14 @@ public class Main {
         for (Customer c : allCustomers) {
             System.out.println(c.getName() + " (" + c.getCustomerType() + "): " + c.getDiscount() + "%");
         }
-        System.out.println("\n✨ Same methods, different behavior!");
-        System.out.println("📌 This is POLYMORPHISM!");
+        System.out.println("\n Same methods, different behavior!");
+        System.out.println(" This is POLYMORPHISM!");
     }
 
     private static int getIntInput(String prompt) {
         System.out.print(prompt);
         while (!scanner.hasNextInt()) {
-            System.out.println("❌ Please enter a valid number.");
+            System.out.println(" Please enter a valid number.");
             scanner.next();
         }
         int input = scanner.nextInt();
@@ -290,7 +290,7 @@ public class Main {
     private static double getDoubleInput(String prompt) {
         System.out.print(prompt);
         while (!scanner.hasNextDouble()) {
-            System.out.println("❌ Please enter a valid price.");
+            System.out.println(" Please enter a valid price.");
             scanner.next();
         }
         double input = scanner.nextDouble();

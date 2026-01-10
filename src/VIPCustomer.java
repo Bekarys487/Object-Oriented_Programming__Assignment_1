@@ -61,12 +61,12 @@ public class VIPCustomer extends Customer {
     public void upgradeMembership() {
         if (membershipLevel.equalsIgnoreCase("Gold")) {
             membershipLevel = "Platinum";
-            System.out.println(name + " upgraded to Platinum membership! 🎉");
+            System.out.println(name + " upgraded to Platinum membership! ");
         } else if (membershipLevel.equalsIgnoreCase("Platinum")) {
             membershipLevel = "Diamond";
-            System.out.println(name + " upgraded to Diamond membership! 💎");
+            System.out.println(name + " upgraded to Diamond membership! ");
         } else {
-            System.out.println(name + " is already at the highest level (Diamond)! 👑");
+            System.out.println(name + " is already at the highest level (Diamond)!");
         }
     }
 
