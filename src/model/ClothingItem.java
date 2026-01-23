@@ -29,12 +29,8 @@ public abstract class ClothingItem implements Discountable {
     }
 
     public void reduceStock(int quantity) {
-        if (quantity <= 0) {
-            throw new IllegalArgumentException("Quantity must be > 0");
-        }
-        if (quantity > stock) {
-            throw new InvalidInputException("Not enough stock!");
-        }
+        if (quantity <= 0) throw new IllegalArgumentException("Quantity must be > 0");
+        if (quantity > stock) throw new InvalidInputException("Not enough stock!");
         stock -= quantity;
     }
 

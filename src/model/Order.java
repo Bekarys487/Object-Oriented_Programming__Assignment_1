@@ -21,9 +21,7 @@ public class Order {
 
     public double getTotal() {
         double total = 0;
-        for (OrderLine line : lines) {
-            total += line.getTotal();
-        }
+        for (OrderLine line : lines) total += line.getTotal();
         return total;
     }
 

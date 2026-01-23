@@ -3,9 +3,7 @@ package model;
 public class Customer {
     private String name;
 
-    public Customer(String name) {
-        setName(name);
-    }
+    public Customer(String name) { setName(name); }
 
     public void setName(String name) {
         if (name == null || name.trim().isEmpty())
@@ -13,7 +11,5 @@ public class Customer {
         this.name = name.trim();
     }
 
-    public String getName() {
-        return name;
-    }
+    public String getName() { return name; }
 }

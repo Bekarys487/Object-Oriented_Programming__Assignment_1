@@ -1,203 +1,197 @@
 package menu;
 
+import database.ClothingItemDAO;
 import exception.InvalidInputException;
 import model.*;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class MenuManager implements Menu {
 
-    private Scanner scanner = new Scanner(System.in);
-    private ArrayList<ClothingItem> inventory = new ArrayList<>();
-    private ArrayList<Order> orders = new ArrayList<>();
-
-    private int nextItemId = 1;
+    private final Scanner scanner = new Scanner(System.in);
+    private final ClothingItemDAO dao = new ClothingItemDAO();
     private int nextOrderId = 1;
-
-    public MenuManager() {
-        inventory.add(new Shirt(nextItemId++, "Basic Shirt", "M", 8990, 10));
-        inventory.add(new Pants(nextItemId++, "Black Pants", "L", 12990, 5));
-        inventory.add(new Jacket(nextItemId++, "Winter Jacket", "XL", 29990, 3));
-    }
 
     @Override
     public void displayMenu() {
-        System.out.println("===== CLOTHING STORE =====");
+        System.out.println("===== CLOTHING STORE (DB) =====");
         System.out.println("1) Show items");
         System.out.println("2) Add item");
-        System.out.println("3) Buy item");
-        System.out.println("4) Show orders");
+        System.out.println("3) Update item");
+        System.out.println("4) Delete item");
+        System.out.println("5) Search by name");
+        System.out.println("6) Search by price range");
+        System.out.println("7) Search by min price");
+        System.out.println("8) Buy item");
+        System.out.println("9) Show items by type");
+        System.out.println("10) Show out of stock items");
+        System.out.println("11) Polymorphism demo");
         System.out.println("0) Exit");
     }
 
     @Override
     public void run() {
         while (true) {
-            System.out.println();
             displayMenu();
-
             int choice = readInt("Choose: ");
 
             switch (choice) {
-                case 1:
-                    showItems();
-                    break;
-                case 2:
-                    addItem();
-                    break;
-                case 3:
-                    buyItem();
-                    break;
-                case 4:
-                    showOrders();
-                    break;
-                case 0:
-                    System.out.println("Program ended.");
-                    return;
-                default:
-                    System.out.println("Invalid choice!");
+                case 1 -> showItems();
+                case 2 -> addItem();
+                case 3 -> updateItem();
+                case 4 -> deleteItem();
+                case 5 -> searchByName();
+                case 6 -> searchByPriceRange();
+                case 7 -> searchByMinPrice();
+                case 8 -> buyItem();
+                case 9 -> showItemsByType();
+                case 10 -> showOutOfStock();
+                case 11 -> polymorphismDemo();
+                case 0 -> { System.out.println("Program ended."); return; }
+                default -> System.out.println("Invalid choice!");
             }
         }
     }
 
     private void showItems() {
-        System.out.println();
-        System.out.println("--- INVENTORY ---");
-
-        if (inventory.isEmpty()) {
-            System.out.println("No items in inventory.");
-            return;
-        }
-
-        for (ClothingItem item : inventory) {
-            System.out.println(item);
-        }
+        printList(dao.getAllItems());
     }
 
     private void addItem() {
-        try {
-            System.out.println();
-            System.out.println("--- ADD ITEM ---");
-            System.out.println("Type: 1) Shirt  2) Pants  3) Jacket");
+        int type = readType();
+        ClothingItem item = createItem(
+                1,
+                type,
+                readString("Name: "),
+                readString("Size: "),
+                readDouble("Price: "),
+                readInt("Stock: ")
+        );
+        System.out.println(dao.insertItem(item) ? "Inserted!" : "Insert failed!");
+    }
 
-            int type = readInt("Choose type: ");
-            String name = readString("Name: ");
-            String size = readString("Size: ");
-            double price = readDouble("Price: ");
-            int stock = readInt("Stock: ");
+    private void updateItem() {
+        int id = readInt("Item ID: ");
+        ClothingItem existing = dao.getItemById(id);
+        if (existing == null) throw new InvalidInputException("Item not found");
 
-            ClothingItem item;
+        ClothingItem updated = createItem(
+                id,
+                readType(),
+                readString("New name: "),
+                readString("New size: "),
+                readDouble("New price: "),
+                readInt("New stock: ")
+        );
+        System.out.println(dao.updateItem(updated) ? "Updated!" : "Update failed!");
+    }
 
-            if (type == 1) {
-                item = new Shirt(nextItemId++, name, size, price, stock);
-            } else if (type == 2) {
-                item = new Pants(nextItemId++, name, size, price, stock);
-            } else if (type == 3) {
-                item = new Jacket(nextItemId++, name, size, price, stock);
-            } else {
-                throw new InvalidInputException("Wrong type selected!");
-            }
+    private void deleteItem() {
+        int id = readInt("Item ID: ");
+        ClothingItem item = dao.getItemById(id);
+        if (item == null) throw new InvalidInputException("Item not found");
 
-            inventory.add(item);
-            System.out.println("Item added: " + item);
-
-        } catch (IllegalArgumentException e) {
-            System.out.println("Error: " + e.getMessage());
-        } catch (InvalidInputException e) {
-            System.out.println("Error: " + e.getMessage());
+        if (readString("Type YES to confirm: ").equalsIgnoreCase("YES")) {
+            System.out.println(dao.deleteItem(id) ? "Deleted!" : "Delete failed!");
         }
+    }
+
+    private void searchByName() {
+        printList(dao.searchByName(readString("Name contains: ")));
+    }
+
+    private void searchByPriceRange() {
+        printList(dao.searchByPriceRange(
+                readDouble("Min price: "),
+                readDouble("Max price: ")
+        ));
+    }
+
+    private void searchByMinPrice() {
+        printList(dao.searchByMinPrice(readDouble("Min price: ")));
     }
 
     private void buyItem() {
-        try {
-            System.out.println();
-            System.out.println("--- BUY ITEM ---");
+        showItems();
+        int id = readInt("Item ID: ");
+        int qty = readInt("Quantity: ");
 
-            if (inventory.isEmpty()) {
-                System.out.println("No items to buy.");
-                return;
-            }
+        if (!dao.reduceStock(id, qty))
+            throw new InvalidInputException("Not enough stock");
 
-            showItems();
+        System.out.println("Purchase completed.");
+    }
 
-            String customerName = readString("Customer name: ");
-            Customer customer = new Customer(customerName);
+    // ---------- NEW OPTIONS ----------
 
-            int id = readInt("Item ID: ");
-            int qty = readInt("Quantity: ");
+    private void showItemsByType() {
+        String type = readString("Enter type (Shirt/Pants/Jacket): ");
+        dao.getAllItems().stream()
+                .filter(i -> i.getType().equalsIgnoreCase(type))
+                .forEach(System.out::println);
+    }
 
-            ClothingItem item = findItemById(id);
-            if (item == null) {
-                throw new InvalidInputException("Item not found!");
-            }
+    private void showOutOfStock() {
+        dao.getAllItems().stream()
+                .filter(i -> i.getStock() == 0)
+                .forEach(System.out::println);
+    }
 
-            item.reduceStock(qty);
+    private void polymorphismDemo() {
+        ClothingItem[] items = {
+                new Shirt(1, "Demo Shirt", "M", 100, 1),
+                new Pants(2, "Demo Pants", "L", 200, 1),
+                new Jacket(3, "Demo Jacket", "XL", 300, 1)
+        };
+        for (ClothingItem i : items)
+            System.out.println(i.getType() + " discounted: " + i.applyDiscount(10));
+    }
 
-            Order order = new Order(nextOrderId++, customer);
-            order.addLine(new OrderLine(item.getType(), item.getName(), item.getPrice(), qty));
-            orders.add(order);
+    // ---------- HELPERS ----------
 
-            System.out.println("Purchase complete.");
-            System.out.println(order);
+    private int readType() {
+        int t = readInt("Type (1 Shirt, 2 Pants, 3 Jacket): ");
+        if (t < 1 || t > 3) throw new InvalidInputException("Wrong type");
+        return t;
+    }
 
-        } catch (IllegalArgumentException e) {
-            System.out.println("Error: " + e.getMessage());
-        } catch (InvalidInputException e) {
-            System.out.println("Error: " + e.getMessage());
+    private ClothingItem createItem(int id, int type, String n, String s, double p, int st) {
+        return switch (type) {
+            case 1 -> new Shirt(id, n, s, p, st);
+            case 2 -> new Pants(id, n, s, p, st);
+            case 3 -> new Jacket(id, n, s, p, st);
+            default -> throw new InvalidInputException("Wrong type");
+        };
+    }
+
+    private void printList(List<ClothingItem> list) {
+        if (list.isEmpty()) System.out.println("No results.");
+        else list.forEach(System.out::println);
+    }
+
+    private int readInt(String p) {
+        while (true) try {
+            System.out.print(p);
+            return Integer.parseInt(scanner.nextLine());
+        } catch (Exception e) {
+            System.out.println("Enter integer!");
         }
     }
 
-    private void showOrders() {
-        System.out.println();
-        System.out.println("--- ORDERS ---");
-
-        if (orders.isEmpty()) {
-            System.out.println("No orders yet.");
-            return;
-        }
-
-        for (Order order : orders) {
-            System.out.println(order);
-            System.out.println("---------------------");
+    private double readDouble(String p) {
+        while (true) try {
+            System.out.print(p);
+            return Double.parseDouble(scanner.nextLine());
+        } catch (Exception e) {
+            System.out.println("Enter number!");
         }
     }
 
-    private ClothingItem findItemById(int id) {
-        for (ClothingItem item : inventory) {
-            if (item.getId() == id) return item;
-        }
-        return null;
-    }
-
-    private int readInt(String prompt) {
-        while (true) {
-            System.out.print(prompt);
-            try {
-                return Integer.parseInt(scanner.nextLine());
-            } catch (NumberFormatException e) {
-                System.out.println("Enter an integer number!");
-            }
-        }
-    }
-
-    private double readDouble(String prompt) {
-        while (true) {
-            System.out.print(prompt);
-            try {
-                return Double.parseDouble(scanner.nextLine());
-            } catch (NumberFormatException e) {
-                System.out.println("Enter a number!");
-            }
-        }
-    }
-
-    private String readString(String prompt) {
-        System.out.print(prompt);
-        String s = scanner.nextLine();
-        if (s.trim().isEmpty()) {
-            throw new IllegalArgumentException("Input cannot be empty");
-        }
-        return s.trim();
+    private String readString(String p) {
+        System.out.print(p);
+        String s = scanner.nextLine().trim();
+        if (s.isEmpty()) throw new InvalidInputException("Empty input");
+        return s;
     }
 }
